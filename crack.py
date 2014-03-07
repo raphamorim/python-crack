@@ -28,73 +28,39 @@ up_credit = 1
 low_credit = 1
 oth_credit = 1
 
+# python3
+try:
+    xrange
+except NameError:
+    xrange = range
+
 
 def palindrome(s):
+    return s == s[::-1]
+
+
+def levenshtein(s1, s2):
     '''
-    Check if the string s is a palindrome
+    levenshtein distance formula [1]
+    [1]: https://en.wikibooks.org/wiki/Algorithm_Implementation/Strings/Levenshtein_distance#Python
     '''
-    for i in xrange(len(s)):
-        if s[i] != s[-i - 1]:
-            return 0
-    return 1
+    if len(s1) < len(s2):
+        return levenshtein(s2, s1)
 
+    if len(s2) == 0:
+        return len(s1)
 
-def distdifferent(old, new, i, j):
-    if i == 0 or len(old) <= i:
-        c = 0
-    else:
-        c = old[i - 1]
+    previous_row = xrange(len(s2) + 1)
+    for i, c1 in enumerate(s1):
+        current_row = [i + 1]
+        for j, c2 in enumerate(s2):
+            insertions = previous_row[j + 1] + 1
+            deletions = current_row[j] + 1
+            substitutions = previous_row[j] + (c1 != c2)
+            current_row.append(min(insertions, deletions, substitutions))
+        previous_row = current_row
 
-    if j == 0 or len(new) <= i:
-        d = 0
-    else:
-        d = new[j - 1]
-
-    return c != d
-
-
-def distcalculate(distances, old, new, i, j):
-    tmp = 0
-
-    if distances[i][j] != -1:
-        return distances[i][j]
-
-    tmp = distcalculate(distances, old, new, i - 1, j - 1)
-    tmp = min(tmp, distcalculate(distances, old, new, i, j - 1))
-    tmp = min(tmp, distcalculate(distances, old, new, i - 1, j))
-    tmp = tmp + distdifferent(old, new, i, j)
-
-    distances[i][j] = tmp
-
-    return tmp
-
-
-def distance(old, new):
-    '''
-    Calculate how different two strings are in terms of the number of
-    character removals, additions, and changes needed to go from one to
-    the other
-    '''
-    m = len(old)
-    n = len(new)
-
-    distances = [[] for i in xrange(m + 1)]
-    for i in xrange(m + 1):
-        distances[i] = [-1 for j in xrange(n + 1)]
-
-    for i in xrange(m + 1):
-        distances[i][0] = i
-    for j in xrange(n + 1):
-        distances[0][j] = j
-    distances[0][0] = 0
-
-    r = distcalculate(distances, old, new, m, n)
-
-    for i in xrange(len(distances)):
-        for j in xrange(len(distances[i])):
-            distances[i][j] = 0
-
-    return r
+    return previous_row[-1]
 
 
 def similar(old, new):
@@ -108,13 +74,13 @@ def similar(old, new):
     password.
     '''
     if len(new) >= (len(old) * 2):
-        return 0
+        return False
 
-    if distance(old, new) >= diff_ok:
-        return 0
+    if levenshtein(old, new) >= diff_ok:
+        return False
 
     # passwords are too similar
-    return 1
+    return True
 
 
 def simple(new):
@@ -172,27 +138,27 @@ def simple(new):
     if dig_credit >= 0:
         size -= digits
     elif digits < -dig_credit:
-        return 1
+        return True
 
     if up_credit >= 0:
         size -= uppers
     elif uppers < -up_credit:
-        return 1
+        return True
 
     if low_credit >= 0:
         size -= lowers
     elif lowers < -low_credit:
-        return 1
+        return True
 
     if oth_credit >= 0:
         size -= others
     elif others < -oth_credit:
-        return 1
+        return True
 
     if len(new) < size:
-        return 1
+        return True
 
-    return 0
+    return True
 
 
 def VeryFascistCheck(new, old=None, dictpath=None):

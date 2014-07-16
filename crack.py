@@ -158,7 +158,7 @@ def simple(new):
     if len(new) < size:
         return True
 
-    return True
+    return False
 
 
 def VeryFascistCheck(new, old=None, dictpath=None):

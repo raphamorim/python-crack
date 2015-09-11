@@ -1,3 +1,6 @@
+**This package is no more maintained, please consider using
+[cracklib](https://pypi.python.org/pypi/cracklib) instead.**
+
 Overview
 ========
 

@@ -17,7 +17,7 @@
  */
 
 #include <Python.h>
-#include './crack.h'
+#include "./crack.h"
 #include <fcntl.h>
 
 #define FILENAME_MAXLEN 512
